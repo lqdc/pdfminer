@@ -245,32 +245,30 @@ class PSBaseParser(object):
         return
 
     def nextline(self):
-        """Fetches a next line that ends either with \\r or \\n.
-        """
         linebuf = b''
         linepos = self.bufpos + self.charpos
         eol = False
         while 1:
             self.fillbuf()
             if eol:
-                c = bytesindex(self.buf,self.charpos)
-                # handle b'\r\n'
+                c = self.buf[self.charpos]
+                # handle '\r\n'
                 if c == b'\n':
                     linebuf += c
                     self.charpos += 1
                 break
             m = EOL.search(self.buf, self.charpos)
             if m:
-                linebuf += bytesindex(self.buf,self.charpos,m.end(0))
+                linebuf += self.buf[self.charpos:m.end(0)]
                 self.charpos = m.end(0)
-                if bytesindex(linebuf,-1) == b'\r':
+                if linebuf[-1] == b'\r':
                     eol = True
                 else:
                     break
             else:
-                linebuf += bytesindex(self.buf,self.charpos,-1)
+                linebuf += self.buf[self.charpos:]
                 self.charpos = len(self.buf)
-        logging.debug('nextline: %r, %r', linepos, linebuf)
+        # logging.debug('nextline: %r, %r', linepos, linebuf)
 
         return (linepos, linebuf)
 
